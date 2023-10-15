@@ -2,6 +2,9 @@
   "name": "perfalize",
   "version": "1.0.0",
   "description": "Simple lightweight performance sampler",
+  "files": [
+    "dist"
+  ],
   "tshy": {
     "selfLink": false,
     "exports": {
