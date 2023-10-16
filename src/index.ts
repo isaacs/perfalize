@@ -9,7 +9,7 @@ export type Sample = {
   total: number
 }
 
-const samples: Record<string, Sample> = Object.create(null)
+import { samples } from './samples.js'
 
 let enabled = false
 let MINIMUM: number = 1

@@ -1,13 +1,16 @@
+import { createRequire } from 'node:module'
 import t from 'tap'
-import {
-  enable,
+import { Sample } from '../src/index.js'
+
+const {
   disable,
+  enable,
   perfalize,
   perfalizeFn,
   print,
   reset,
   results,
-} from '../src/index.js'
+} = await import('../src/index.js')
 
 t.afterEach(reset)
 
@@ -53,4 +56,25 @@ t.test('alize some perf', async t => {
   disable()
   t.equal(fn, perfalizeFn('no-op again', fn))
   t.end()
+})
+
+t.test('samples are the same object in esm and cjs', async t => {
+  const kSamples = Symbol.for('perfalize.samples.0')
+  const g = globalThis as typeof globalThis & {
+    [kSamples]?: Record<string, Sample>
+  }
+  const cached = g[kSamples]
+  const req = createRequire(import.meta.url)
+  const { samples: fromImport } = await import(
+    '../dist/esm/samples.js'
+  )
+  const { samples: fromRequire } = req('../dist/commonjs/samples.js')
+  t.equal(fromImport, fromRequire)
+  t.equal(cached, fromImport)
+  delete g[kSamples]
+  const { samples: fromFresh } = (await t.mockImport(
+    '../dist/esm/samples.js'
+  )) as typeof import('../dist/esm/samples.js')
+  t.not(fromFresh, cached)
+  t.equal(fromFresh, g[kSamples])
 })
